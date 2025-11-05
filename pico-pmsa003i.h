@@ -9,23 +9,44 @@
 
 namespace pico_pmsa003i {
 
-  const uint8_t PMSA003I_ADDRESS = 0x12;
-  const uint8_t PMSA003I_LENGTH = 32;
+constexpr uint8_t PMSA003I_ADDRESS = 0x12;
+constexpr uint8_t PMSA003I_LENGTH = 32;
 
-  class PMSA003I {
-    private:
+// All decoded PMSA003I output values
+struct PMSA003I_Data {
+    uint16_t pm10_standard_ug_m3;
+    uint16_t pm25_standard_ug_m3;
+    uint16_t pm100_standard_ug_m3;
+    uint16_t pm10_environmental_ug_m3;
+    uint16_t pm25_environmental_ug_m3;
+    uint16_t pm100_environmental_ug_m3;
+    uint16_t particulate_03um_per_01L;
+    uint16_t particulate_05um_per_01L;
+    uint16_t particulate_10um_per_01L;
+    uint16_t particulate_25um_per_01L;
+    uint16_t particulate_50um_per_01L;
+    uint16_t particulate_100um_per_01L;
+};
 
-      i2c_inst *i2CInst;
+class PMSA003I {
+  private:
 
-    public:
+    i2c_inst *i2CInst;
 
-      PMSA003I(i2c_inst *i2CInst);
+  public:
 
-      // Read new particulate concentration measurement data from the PMSA003I device and store in locations provided.
-      // Returns 0 on success.
-      // Returns 1 on I2C error, 2 on I2C timeout, 3 on bad frame start, 4 on bad frame length, 5 on bad checksum.
-      int read(uint16_t &pm_1p0, uint16_t &pm_2p5, uint16_t &pm_10);
-  };
+    explicit PMSA003I(i2c_inst *i2CInst);
+
+    // Reads a complete measurement frame and fills `out` with all 12 metrics.
+    // Returns:
+    //   0 = success
+    //   1 = I2C error
+    //   2 = I2C timeout
+    //   3 = bad frame start
+    //   4 = bad frame length
+    //   5 = checksum mismatch
+    int read(PMSA003I_Data &out);
+};
 
 }
 
