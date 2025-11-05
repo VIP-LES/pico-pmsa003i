@@ -6,14 +6,12 @@
 #define PICO_PMSA003I_H
 
 #include "hardware/i2c.h"
+#include <stdint.h>
 
-namespace pico_pmsa003i {
+#define PMSA003I_ADDRESS 0x12
+#define PMSA003I_LENGTH  32
 
-constexpr uint8_t PMSA003I_ADDRESS = 0x12;
-constexpr uint8_t PMSA003I_LENGTH = 32;
-
-// All decoded PMSA003I output values
-struct PMSA003I_Data {
+typedef struct {
     uint16_t pm10_standard_ug_m3;
     uint16_t pm25_standard_ug_m3;
     uint16_t pm100_standard_ug_m3;
@@ -26,28 +24,15 @@ struct PMSA003I_Data {
     uint16_t particulate_25um_per_01L;
     uint16_t particulate_50um_per_01L;
     uint16_t particulate_100um_per_01L;
-};
+} pmsa003i_data_t;
 
-class PMSA003I {
-  private:
+// Initialize the sensor with a chosen I2C instance.
+void pmsa003i_init(i2c_inst_t *i2c_inst);
 
-    i2c_inst *i2CInst;
+// Read a full data frame into the provided struct.
+// Returns 0 on success.
+// Returns 1 on I2C error, 2 on timeout, 3 on bad frame start,
+// 4 on bad frame length, 5 on checksum fail.
+int pmsa003i_read(pmsa003i_data_t *out);
 
-  public:
-
-    explicit PMSA003I(i2c_inst *i2CInst);
-
-    // Reads a complete measurement frame and fills `out` with all 12 metrics.
-    // Returns:
-    //   0 = success
-    //   1 = I2C error
-    //   2 = I2C timeout
-    //   3 = bad frame start
-    //   4 = bad frame length
-    //   5 = checksum mismatch
-    int read(PMSA003I_Data &out);
-};
-
-}
-
-#endif //PICO_PMSA003I_H
+#endif

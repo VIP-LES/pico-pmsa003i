@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 add_library(pico_pmsa003i
-    pico-pmsa003i.cpp
+    pico-pmsa003i.c
 )
 
 target_link_libraries(pico_pmsa003i
